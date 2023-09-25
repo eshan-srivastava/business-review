@@ -34,6 +34,9 @@ export const resolvers = {
                 return v.userId === args.id;
             })[0];
         },
+        categories: (_, args, contextValue) => {
+            return contextValue.db.categories;
+        },
     },
     //a Business's resolver has to deal with reviews and avgstars separately
     //as reviews is a recursive field and avgstars uses multiple
@@ -97,5 +100,12 @@ export const resolvers = {
                 });
             });
         },
+    },
+    Category: {
+        businesses: (obj, _, contextValue) => {
+            return contextValue.db.businesses.filter( v => {
+                return v.categories.includes(obj.name);
+            });
+        }
     }
 };
