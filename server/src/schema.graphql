@@ -13,6 +13,8 @@ type Business {
         first: Int = 3,
         offset: Int = 0,
         orderBy: ReviewOrdering = stars_desc): [Review!]!
+    #categories tagged to the business
+    categories: [Category]
 }
 
 type User {
@@ -42,6 +44,11 @@ type Review {
     business: Business
 }
 
+type Category {
+    name: String!
+    businesses: [Business]
+}
+
 enum BusinessOrdering {
     name_asc
     name_desc
@@ -62,5 +69,6 @@ type Query {
         orderBy: BusinessOrdering = name_asc
         ) : [Business!]!
     userById(id: ID!): User
+    categories: [Category]
 }
 
