@@ -1,0 +1,66 @@
+#business entity
+type Business {
+    businessId: ID!
+    name: String!
+    #address of business, if its null then assign to remote maybe?
+    address: String
+    #can be null when no reviews are posted yet
+    avgStars: Float
+    #photos submitted along reviews, pagination enabled with first 3 served first
+    photos(first: Int = 3, offset: Int = 0): [Photo!]!
+    #reviews referring to the business
+    reviews(
+        first: Int = 3,
+        offset: Int = 0,
+        orderBy: ReviewOrdering = stars_desc): [Review!]!
+}
+
+type User {
+    userId: ID!
+    name: String!
+    #photos uploaded by the user in reveiws
+    photos: [Photo!]!
+    reviews: [Review!]!
+}
+
+type Photo {
+    business: Business!
+    #user who uploaded the photo
+    user: User!
+    photoId: ID!
+    #if url is null then photo wouldnt exist
+    url: String!
+}
+
+type Review {
+    reviewId: ID!
+    stars: Float
+    #review message
+    text: String
+    #user who posted the review
+    user: User!
+    business: Business
+}
+
+enum BusinessOrdering {
+    name_asc
+    name_desc
+}
+
+enum ReviewOrdering {
+    stars_asc
+    stars_desc
+}
+
+type Query {
+    allBusinesses(first: Int = 10, offset: Int = 0): [Business!]!
+    #the values of first and offset are default values which can be controlled by client
+    businessBySearch(
+        search: String!
+        first: Int = 10
+        offset: Int = 0
+        orderBy: BusinessOrdering = name_asc
+        ) : [Business!]!
+    userById(id: ID!): User
+}
+
