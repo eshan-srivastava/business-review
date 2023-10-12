@@ -1,34 +1,58 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { gql, useQuery } from '@apollo/client'
+import BusinessResults from './BusinessResults';
+
+//get business query that returns list of businesses
+const GET_BUSINESSES = gql(`
+  query allBusinesses{
+    businesses {
+      businessId
+      name
+      address
+      categories {
+        name
+      }
+    }
+  }
+`);
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
+  const { loading, error, data } = useQuery(GET_BUSINESSES);
+
+  if (error){
+    return (
+      <p>ERROR: {error.message} </p>
+    );
+  }
+  if (loading){
+    return (
+      <p>Insert spinner here</p>
+    );
+  }
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div>
+      <h1>Business Search</h1>
+      <form>
+        <label>
+          Select Business Category:
+          <select 
+          id="biz-select"
+          value={selectedCategory}
+          onChange={(event) => {setSelectedCategory(event.target.value)}}>
+            <option value="All">All</option>
+            <option value="Library">Library</option>
+            <option value="Restaurant">Restaurant</option>
+            <option value="Car Wash">Car Wash</option>
+          </select>
+        </label>
+        <input type="submit" value="Submit" />
+      </form>
+
+      <BusinessResults businesses={data.businesses} />
+    </div>
   )
 }
 

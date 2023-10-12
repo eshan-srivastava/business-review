@@ -1,15 +1,12 @@
 #business entity
 type Business {
     businessId: ID!
-    waitTime: Int!
     #CYPHER query to calculate average stars of this business from all reviews
-    averageStars: Float!
-    @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN avg(r.stars)")
-    #recommended business based on
-    recommended(first: Int = 1): [Business!]!
-    @cypher(statement: "MATCH (this)<-[:REVIEWS]-(:Review)<-[:WROTE]-(:User)-[:WROTE]->(:Review)-[:REVIEWS]->(rec:Business) WITH rec, COUNT(*) AS score RETURN rec ORDER BY score DESC LIMIT $first"
-    )
-    
+    averageStars: Float! 
+        @cypher(
+            statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN avg(r.stars) AS averageStars",
+            columnName: "averageStars"
+        )
     name: String!
     #address of business using various field
     city: String!
@@ -26,7 +23,6 @@ type Business {
 type User {
     userId: ID!
     name: String!
-    
     reviews: [Review!]! @relationship(type: "WROTE", direction: OUT)
 }
 
@@ -55,18 +51,3 @@ enum ReviewOrdering {
     stars_asc
     stars_desc
 }
-
-type Query {
-    allBusinesses(first: Int = 10, offset: Int = 0): [Business!]!
-    #the values of first and offset are default values which can be controlled by client
-    fuzzyBusinessBySearch(searchString: String!): [Business!]!
-    @cypher(
-        statement: """
-        CALL db.index.fulltext.queryNodes('businessNameIndex', $searchString+'~')
-        YIELD node RETURN node
-        """
-    )
-    userById(id: ID!): User
-    categories: [Category]
-}
-
