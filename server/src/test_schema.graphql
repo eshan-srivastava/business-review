@@ -7,6 +7,16 @@ type Business {
             statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN avg(r.stars) AS averageStars",
             columnName: "averageStars"
         )
+    recommended(first: Int = 1): [Business!]!
+        @cypher(
+            statement: """
+            MATCH (this)<-[:REVIEWS]-(:Review)<-[:WROTE]-(u:User)
+            MATCH (u)-[:WROTE]->(:Review)-[:REVIEWS]->(rec:Business)
+            WITH rec, COUNT(*) AS score
+            RETURN rec AS recommended ORDER BY score DESC LIMIT $first
+            """,
+            columnName: "recommended"
+        )
     name: String!
     #address of business using various field
     city: String!
@@ -50,4 +60,15 @@ enum BusinessOrdering {
 enum ReviewOrdering {
     stars_asc
     stars_desc
+}
+
+type Query {
+    fuzzyBusinessBySearch(searchString: String!): [Business!]!
+    @cypher(
+        statement: """
+        CALL db.index.fulltext.queryNodes('businessNameIndex', $searchString+'~')
+        YIELD node RETURN node AS fuzzyresult
+        """,
+        columnName: "fuzzyresult"
+    )
 }

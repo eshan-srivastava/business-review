@@ -2,7 +2,7 @@ import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import { readFileSync } from 'fs';
 import { resolvers } from './resolvers';
-import { Neo4jGraphQL } from "@neo4j/graphql";
+import { Neo4jGraphQL, Neo4jGraphQLConstructor } from "@neo4j/graphql";
 import neo4j from "neo4j-driver";
 import { error } from 'console';
 
@@ -14,6 +14,7 @@ const driver = neo4j.driver(
     "bolt://localhost:7687",
     neo4j.auth.basic("neo4j", "biz12345")
 );
+
 
 const neoSchema = new Neo4jGraphQL({ typeDefs, driver });
 
