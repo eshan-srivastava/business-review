@@ -3,24 +3,35 @@ import './App.css'
 import { gql, useQuery } from '@apollo/client'
 import BusinessResults from './BusinessResults';
 
-//get business query that returns list of businesses
-const GET_BUSINESSES = gql(`
-  query allBusinesses{
-    businesses {
-      businessId
+//get business query that returns list of businesses, with fragment containing actual data to be returned by the query
+const BUSINESS_DETAILS_FRAGMENT = gql(`
+  fragment businessDetails on Business {
+    businessId
       name
       address
       categories {
         name
       }
+  }
+`);
+
+const GET_BUSINESSES = gql(`
+  query BussinessesByCategory($selectedCategory: String!){
+    businesses(where: {categories_SOME: {name_CONTAINS: $selectedCategory}}) {
+      ...businessDetails
+      isStarred @client
     }
   }
+  ${BUSINESS_DETAILS_FRAGMENT}
 `);
 
 function App() {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const { loading, error, data } = useQuery(GET_BUSINESSES);
+  //fetch business data by hook and add on-user-interaction cache updation
+  const { loading, error, data, refetch } = useQuery(GET_BUSINESSES, {
+    variables: { selectedCategory },
+  });
 
   if (error){
     return (
@@ -48,7 +59,7 @@ function App() {
             <option value="Car Wash">Car Wash</option>
           </select>
         </label>
-        <input type="submit" value="Submit" />
+        <input type="button" value="Refetch" onClick={() => refetch}/>
       </form>
 
       <BusinessResults businesses={data.businesses} />

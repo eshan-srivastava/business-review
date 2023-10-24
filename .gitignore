@@ -1,6 +1,7 @@
 node_modules
 .DS_Store
 .env
+*/**/*.txt
 */**/dist
 */**/types.ts
 */**/__generated__

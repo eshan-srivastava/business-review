@@ -1,8 +1,16 @@
 #business entity
+type JWT @jwt {
+    roles: [String!]!
+}
+
 type Business {
     businessId: ID!
     #CYPHER query to calculate average stars of this business from all reviews
     averageStars: Float! 
+        @authorization(validate: [
+                {where: {jwt: { roles_INCLUDES: "admin"}}}
+            ]
+        )
         @cypher(
             statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN avg(r.stars) AS averageStars",
             columnName: "averageStars"
@@ -30,11 +38,18 @@ type Business {
     categories: [Category!]! @relationship(type: "IN_CATEGORY", direction: OUT)
 }
 
-type User {
+type User @authorization(
+        validate: [
+            {where: { node: {userId: "$jwt.sub"}}}
+            {where: {jwt: {roles_INCLUDES: "admin"}}}
+        ]
+    ){
     userId: ID!
     name: String!
     reviews: [Review!]! @relationship(type: "WROTE", direction: OUT)
 }
+
+#extend type User @auth(rules: [{operations: [READ], allow: {userId: "$jwt.sub"}}, {roles: ["admin"]}]) 
 
 type Review {
     reviewId: ID!
