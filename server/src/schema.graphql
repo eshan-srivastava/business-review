@@ -2,8 +2,8 @@
 type Business {
     businessId: ID!
     name: String!
-    #address of business, if its null then assign to remote maybe?
-    address: String
+    #address of business
+    address: String!
     #can be null when no reviews are posted yet
     avgStars: Float
     #photos submitted along reviews, pagination enabled with first 3 served first

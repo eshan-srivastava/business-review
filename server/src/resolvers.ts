@@ -41,6 +41,10 @@ export const resolvers = {
     //a Business's resolver has to deal with reviews and avgstars separately
     //as reviews is a recursive field and avgstars uses multiple
     Business: {
+        waitTime: (obj, args, contextValue) => {
+            const options = [0,5,10,15,30,45];
+            return options[Math.floor(Math.random() * options.length)];
+        },
         reviews: (obj, args, contextValue) => {
             //default order by star value is descending
             const compare = (a, b) => {
